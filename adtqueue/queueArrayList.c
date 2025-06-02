@@ -15,43 +15,122 @@
 #define INITIAL_CAPACITY 20
 
 typedef struct queueImpl {
-	// TODO
+	
 } QueueImpl;
 
 
 PtQueue queueCreate() {
-	return NULL;
+	PtQueue queue = (PtQueue)malloc(sizeof(QueueImpl));
+	if (queue == NULL) return NULL;
+
+	queue->elements = (QueueElem *)malloc(sizeof(QueueElem) * INITIAL_CAPACITY);
+	if (queue->elements == NULL) {
+		free(queue);
+		return NULL;
+	}
+
+	queue->size = 0;
+	queue->capacity = INITIAL_CAPACITY;
+
+	return queue;
 }
 
 int queueDestroy(PtQueue *ptQueue) {
-	return -1;
+	if (ptQueue == NULL || *ptQueue == NULL) return QUEUE_NULL;
+
+	free((*ptQueue)->elements);
+	free(*ptQueue);
+	*ptQueue = NULL;
+
+	return QUEUE_OK;
 }
 
-int queueEnqueue(PtQueue queue, QueueElem elem) { 
-	return -1;
+int queueEnqueue(PtQueue queue, QueueElem elem) {
+	if (queue == NULL) return QUEUE_NULL;
+
+	if (queue->size == queue->capacity) {
+		int newCapacity = queue->capacity * 2;
+		QueueElem *newArray = realloc(queue->elements, sizeof(QueueElem) * newCapacity);
+		if (newArray == NULL) return QUEUE_NO_MEMORY;
+
+		queue->elements = newArray;
+		queue->capacity = newCapacity;
+	}
+
+	queue->elements[queue->size] = elem;
+	queue->size++;
+
+	return QUEUE_OK;
 }
 
-int queueDequeue(PtQueue queue, QueueElem *ptElem) { 
-	return -1;
+
+int queueDequeue(PtQueue queue, QueueElem *ptElem) {
+	if (queue == NULL) return QUEUE_NULL;
+
+	if (queue->size == 0) return QUEUE_EMPTY;
+
+	*ptElem = queue->elements[0];
+
+	for (int i = 0; i < queue->size - 1; i++) {
+		queue->elements[i] = queue->elements[i + 1];
+	}
+
+	queue->size--;
+
+	return QUEUE_OK;
 }
 
-int queueFront(PtQueue queue, QueueElem *ptElem) { 
-	return -1;
+
+int queueFront(PtQueue queue, QueueElem *ptElem) {
+	if (queue == NULL) return QUEUE_NULL;
+
+	if (queue->size == 0) return QUEUE_EMPTY;
+
+	*ptElem = queue->elements[0];
+
+	return QUEUE_OK;
 }
+
 
 int queueSize(PtQueue queue, int *ptSize) {
-	return -1;
+	if (queue == NULL) return QUEUE_NULL;
+
+	*ptSize = queue->size;
+	return QUEUE_OK;
 }
+
 
 bool queueIsEmpty(PtQueue queue) {
-	return false;
+	if (queue == NULL) return true;
+
+	return (queue->size == 0);
 }
+
 
 int queueClear(PtQueue queue) {
-	return -1;
+	if (queue == NULL) return QUEUE_NULL;
+
+	queue->size = 0;
+	return QUEUE_OK;
 }
 
-void queuePrint(PtQueue queue) { 
-	// TODO
+void queuePrint(PtQueue queue) {
+	if (queue == NULL) {
+		printf("(Queue NULL)\n");
+	}
+	else if (queueIsEmpty(queue)) {
+		printf("(Queue Empty)\n");
+	}
+	else {
+		printf("Queue contents (front to rear): \n");
+
+		for (int i = 0; i < queue->size; i++) {
+			queueElemPrint(queue->elements[i]);  // já fornecida
+		}
+
+		printf("--- rear ---\n");
+	}
+	printf("\n");
 }
+
 
